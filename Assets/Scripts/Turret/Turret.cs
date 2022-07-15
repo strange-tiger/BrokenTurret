@@ -33,31 +33,7 @@ public class Turret : MonoBehaviour
         _cos = Vector3.Dot(_front, _distance.normalized);
         _cross = Vector3.Cross(_front, _distance.normalized);
         
-        if (!Player.activeSelf)
-        {
-            transform.Rotate(Vector3.up * RotationSpeed);
-            return;
-        }
-
-        if (_disMag > AimRange)
-        {
-            transform.Rotate(Vector3.up * RotationSpeed);
-            return;
-        }
-
-        if (_cos > MaxCosRange)
-        {
-            transform.Rotate(Vector3.up * RotationSpeed);
-            return;
-        }
-
-        if (_cos < MinCosRange)
-        {
-            transform.Rotate(Vector3.up * RotationSpeed);
-            return;
-        }
-
-        if (_cross.y > 0)
+        if (OutOfRange())
         {
             transform.Rotate(Vector3.up * RotationSpeed);
             return;
@@ -72,5 +48,35 @@ public class Turret : MonoBehaviour
 
             GameObject bullet = Instantiate(BulletPrefab, _muzzle.position, _muzzle.rotation);
         }
+    }
+
+    private bool OutOfRange()
+    {
+        if (!Player.activeSelf)
+        {
+            return true;
+        }
+
+        if (_disMag > AimRange)
+        {
+            return true;
+        }
+
+        if (_cos > MaxCosRange)
+        {
+            return true;
+        }
+
+        if (_cos < MinCosRange)
+        {
+            return true;
+        }
+
+        if (_cross.y > 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
