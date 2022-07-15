@@ -5,7 +5,7 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     public GameObject BulletPrefab;
-    public Transform Player;
+    public GameObject Player;
     public float TimeRange = 1.0f;
     public float AimRange = 15f;
     public float MinCosRange = 0f;
@@ -22,7 +22,7 @@ public class Turret : MonoBehaviour
 
     private void Start()
     {
-        _front = transform.forward.normalized;
+        _front = transform.forward;
     }
 
     // Update is called once per frame
@@ -30,26 +30,47 @@ public class Turret : MonoBehaviour
     {
         _distance = Player.transform.position - transform.position;
         _disMag = _distance.magnitude;
-        //_angle = Mathf.Acos(Vector3.Dot(_front, _distance.normalized));
         _cos = Vector3.Dot(_front, _distance.normalized);
         _cross = Vector3.Cross(_front, _distance.normalized);
-
-        if (_disMag <= AimRange && _cos < MaxCosRange && _cos > MinCosRange && _cross.y < 0)
-        {
-            transform.LookAt(Player);
-            _muzzle = transform;
-
-            _elapsedTime += Time.deltaTime;
-            if (_elapsedTime >= TimeRange)
-            {
-                _elapsedTime = 0f;
-
-                GameObject bullet = Instantiate(BulletPrefab, _muzzle.position, _muzzle.rotation);
-            }
-        }
-        else
+        
+        if (!Player.activeSelf)
         {
             transform.Rotate(Vector3.up * RotationSpeed);
+            return;
+        }
+
+        if (_disMag > AimRange)
+        {
+            transform.Rotate(Vector3.up * RotationSpeed);
+            return;
+        }
+
+        if (_cos > MaxCosRange)
+        {
+            transform.Rotate(Vector3.up * RotationSpeed);
+            return;
+        }
+
+        if (_cos < MinCosRange)
+        {
+            transform.Rotate(Vector3.up * RotationSpeed);
+            return;
+        }
+
+        if (_cross.y > 0)
+        {
+            transform.Rotate(Vector3.up * RotationSpeed);
+            return;
+        }
+
+        transform.LookAt(Player.transform);
+        _muzzle = transform;
+        _elapsedTime += Time.deltaTime;
+        if (_elapsedTime >= TimeRange)
+        {
+            _elapsedTime = 0f;
+
+            GameObject bullet = Instantiate(BulletPrefab, _muzzle.position, _muzzle.rotation);
         }
     }
 }
